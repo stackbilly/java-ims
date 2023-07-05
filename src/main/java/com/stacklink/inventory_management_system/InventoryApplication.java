@@ -19,7 +19,9 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
 
@@ -30,6 +32,9 @@ public class InventoryApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        IMSDatabase database = new IMSDatabase();
+        DialogWindow dialog = new DialogWindow();
+
         AnchorPane rootLayout = new AnchorPane();
         rootLayout.setPrefHeight(589);
         rootLayout.setPrefWidth(779);
@@ -84,8 +89,25 @@ public class InventoryApplication extends Application {
         Button login = new Button("LOGIN");
         login.setFont(Font.font(20.0));
         login.setOnAction(e -> {
-            primaryStage.close();
-            DashBoardUserInterface();
+//            primaryStage.close();
+//            DashBoardUserInterface();
+            boolean isUser;
+            ArrayList<String> userDetail = database.getUser(userName.getText());
+            if (userDetail.size() > 1){
+                try {
+                    isUser = database.validatePassword(passWord.getText(), userDetail.get(2), userDetail.get(1));
+                    System.out.println(isUser);
+                    if (isUser){
+                        primaryStage.close();
+                        DashBoardUserInterface();
+                    }
+                    else
+                        dialog.showDialog("Access Denied", "Access Denied, illegitimate user");
+                } catch (NoSuchAlgorithmException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }else
+                dialog.showDialog("Error", "No such user in the system");
         });
         login.setPrefHeight(50);
         login.setPrefWidth(271);
@@ -344,7 +366,7 @@ public class InventoryApplication extends Application {
         filterDatePicker.setMinWidth(50);
         filterDatePicker.setMinHeight(41);
 
-        sideBar.getChildren().addAll(lblBox,dashboard, category, product, lPos, sales, phone, expenses, report, user);
+        sideBar.getChildren().addAll(lblBox,dashboard, user, category, product, lPos, sales, phone, expenses, report);
         pane.setLeft(sideBar);
         pane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 

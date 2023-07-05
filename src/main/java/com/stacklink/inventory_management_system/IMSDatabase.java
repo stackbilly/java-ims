@@ -1,7 +1,10 @@
 package com.stacklink.inventory_management_system;
 
 import com.mongodb.MongoWriteException;
-import com.mongodb.client.*;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Updates;
@@ -10,18 +13,17 @@ import javafx.collections.ObservableList;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class IMSDatabase {
@@ -740,8 +742,7 @@ public class IMSDatabase {
         int phoneRevenue = getRevenueOfTask("Phones", "profit", date);
         int totalExpenses = getRevenueOfTask("Expenses", "cost", date);
 
-        int totalRevenue = (salesRevenue + phoneRevenue) - totalExpenses;
-        return totalRevenue;
+        return (salesRevenue + phoneRevenue) - totalExpenses;
     }
 
     public int getTotalCostOfProducts(){
@@ -826,6 +827,38 @@ public class IMSDatabase {
         return inventoryDailyData;
     }
 
+    public ArrayList<String> getUser(String username){
+        ArrayList<String> userList = new ArrayList<>();
+        try {
+            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
+            MongoCollection<Document> collection = database.getCollection("Users");
+            FindIterable<Document> documents = collection.find(Filters.eq("username", username));
+            for (Document doc : documents){
+                userList.add((String) doc.get("username"));
+                userList.add((String) doc.get("salt"));
+                userList.add((String) doc.get("password"));
+            }
+        }catch (Exception e){
+            dialog.showDialog("Error", "Error retrieving user data");
+            e.printStackTrace();
+        }
+        return userList;
+    }
+    String salt = null;
+    private static String getSalt() throws NoSuchAlgorithmException{
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        return Arrays.toString(salt);
+    }
+    public static String generateStrongPassword(String password, String salt) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        byte[] hashedPassword = digest.digest((password + salt).getBytes());
+        String calculatedHash = toHexString(hashedPassword);
+        return calculatedHash;
+    }
+
     public void addUser(String username, String password){
         try {
             com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
@@ -833,13 +866,9 @@ public class IMSDatabase {
             System.out.println("DATABASE CONN -> [SUCCESS] -> Users");
             MongoCollection<Document> collection = database.getCollection("Users");
             createUniqueIndex("username", "Users");
-            SecureRandom random = new SecureRandom();
-            byte[] salt = new byte[16];
-            random.nextBytes(salt);
-            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536,128);
-            SecretKeyFactory factory =  SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            byte[] hash = factory.generateSecret(spec).getEncoded();
-            Document document = new Document("username", username).append("password", hash);
+            salt = getSalt();
+            Document document = new Document("username", username).append("salt", salt).
+                    append("password", generateStrongPassword(password, salt));
             try {
                 collection.insertOne(document);
                 dialog.showDialog("Success", username+" user inserted successfully");
@@ -848,8 +877,18 @@ public class IMSDatabase {
             }
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
-        } catch (InvalidKeySpecException e) {
-            throw new RuntimeException(e);
         }
+    }
+    public boolean validatePassword(String loginPassword, String hashPassword, String salt) throws NoSuchAlgorithmException{
+        String calcHash = generateStrongPassword(loginPassword, salt);
+        return calcHash.equals(hashPassword);
+    }
+
+    public static String toHexString(byte[] bytes){
+        StringBuilder sb = new StringBuilder();
+        for (byte aByte : bytes){
+            sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+        }
+        return sb.toString();
     }
 }
