@@ -25,45 +25,47 @@ public class IMSCategory {
         icon.setFitHeight(35);
         Label productL = new Label("CATEGORIES", icon);
         productL.setContentDisplay(ContentDisplay.LEFT);
-        productL.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 15));
+        productL.setFont(Font.font("Verdana", FontWeight.BOLD, 15));
         HBox hRight = new HBox(productL);
         hRight.setAlignment(Pos.CENTER_LEFT);
         hRight.setPadding(new Insets(25.0,25.0,25.0,25.0));
 
-        Button addCategory = new Button("ADD CATEGORY");
-        addCategory.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 16));
-        addCategory.setTextFill(Color.WHITE);
-        addCategory.setBackground(new Background(new BackgroundFill(Color.CRIMSON, CornerRadii.EMPTY, Insets.EMPTY)));
-        addCategory.setOnAction(e -> addCategoryInterface());
-        HBox hLeft = new HBox(addCategory);
+        Button deleteCategory = new Button("DELETE CATEGORY");
+        deleteCategory.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 16));
+        deleteCategory.setTextFill(Color.WHITE);
+        deleteCategory.setBackground(new Background(new BackgroundFill(Color.CRIMSON, CornerRadii.EMPTY, Insets.EMPTY)));
+        HBox hLeft = new HBox(deleteCategory);
         AnchorPane.setRightAnchor(hLeft,12.0);
         AnchorPane.setTopAnchor(hLeft, 6.0);
         hLeft.setPadding(new Insets(25.0,25.0,25.0,25.0));
 
         TableView<Category> categoryTable = new TableView<>();
+        categoryTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         TableColumn<Category, String> indexCol = new TableColumn<>("#");
         indexCol.setCellValueFactory((e) -> e.getValue().getIndexProperty());
-        indexCol.setPrefWidth(130.0);
 
         TableColumn<Category, String> categoryColumn = new TableColumn<>("Category");
         categoryColumn.setCellValueFactory((e) -> e.getValue().categoryNameProperty());
-        categoryColumn.setPrefWidth(135.0);
-//        categoryColumn.setResizable(true);
 
-        TableColumn<Category, String> status = new TableColumn<>("Status");
-        status.setCellValueFactory((e) -> e.getValue().statusProperty());
-        status.setPrefWidth(135);
-//        status.setEditable(true);
-        status.setResizable(false);
-        status.setOnEditCommit((e) -> dialog.showDialog("Try", "You are trying to edit me"));
+        TableColumn<Category, String> type = new TableColumn<>("Type");
+        type.setCellValueFactory((e) -> e.getValue().typeProperty());
+        type.setResizable(false);
+        type.setOnEditCommit((e) -> dialog.showDialog("Try", "You are trying to edit me"));
 
-        categoryTable.getColumns().addAll(indexCol, categoryColumn, status);
+        categoryTable.getColumns().addAll(indexCol, categoryColumn, type);
         categoryTable.itemsProperty().setValue(database.getCategories());
-        categoryTable.setMinSize(400,100);
+        categoryTable.setMinSize(400,600);
         categoryTable.setMaxWidth(400);
         categoryTable.setEditable(true);
-
+        deleteCategory.setOnAction(e -> {
+            if(database.deleteTask("name",
+                    categoryTable.getSelectionModel().getSelectedItem().getCategoryName(), "Category")){
+                dialog.showDialog("Success", "Category "+categoryTable.getSelectionModel().getSelectedItem().getCategoryName()+
+                        "deleted successfully");
+                categoryTable.getItems().remove(categoryTable.getSelectionModel().getSelectedItem());
+            }
+        });
 
         HBox tableBox = new HBox(25.0);
         tableBox.getChildren().addAll(addCategoryInterface(),categoryTable);
@@ -96,16 +98,16 @@ public class IMSCategory {
         grid.add(nameL, 0,0);
         grid.add(nameF, 1,0);
 
-        Label statusL = new Label("Status");
-        statusL.setFont(Font.font(18.0));
-        grid.add(statusL, 0,1);
-        ComboBox<String> status = new ComboBox<>();
-        status.getItems().addAll("Active", "Inactive", "Deactivated", "Other");
-        status.setValue("Active");
-        status.setEditable(false);
-        status.setMinWidth(57);
-        status.setMinHeight(41);
-        grid.add(status,1,1);
+        Label typeL = new Label("Mark as");
+        typeL.setFont(Font.font(18.0));
+        grid.add(typeL, 0,1);
+        ComboBox<String> type = new ComboBox<>();
+        type.getItems().addAll("Product", "Expense");
+        type.setPromptText("Select One");
+        type.setEditable(false);
+        type.setMinWidth(57);
+        type.setMinHeight(41);
+        grid.add(type,1,1);
 
         Button add = new Button("ADD");
         add.setFont(Font.font(20.0));
@@ -114,7 +116,7 @@ public class IMSCategory {
             if (nameF.getText().isEmpty()){
                 dialog.showDialog("Alert", "Category value cannot be empty");
             }else{
-                if (database.addCategory(nameF.getText(), status.getValue()))
+                if (database.addCategory(nameF.getText(), type.getValue()))
                 {
                     dialog.showDialog("Success", nameF.getText()+ " category added successfully");
                     nameF.clear();

@@ -26,7 +26,6 @@ public class Dashboard {
     IMSDatabase database = new IMSDatabase();
 
     IMSSales sales = new IMSSales();
-    IMSPhones phones = new IMSPhones();
 
     IMSExpense expenses = new IMSExpense();
 
@@ -94,17 +93,17 @@ public class Dashboard {
         Text tSales = new Text("Sales");
         Label lSales = new Label(String.valueOf(database.getTotalSales(date)), tSales);
 
-        Text tPhones = new Text("Phones");
-        Label lPhones = new Label(String.valueOf(database.getRevenueOfTask("Phones", "profit", date)));
+        Text tUsers = new Text("Users");
+        Label lUsers = new Label(String.valueOf(database.getCollectionCount("Users")), tUsers);
 
         Text tExpense = new Text("Expenses");
-        Label lExpenses = new Label(String.valueOf(database.getRevenueOfTask("Expenses", "cost", date)));
+        Label lExpenses = new Label(String.valueOf(database.getRevenueOfTask("Expenses", "cost", date)), tExpense);
 
         hRoot.getChildren().addAll(
                 Container("/assets/category.png", lRevenue, tRevenue, Color.PALEVIOLETRED),
                 Container("/assets/cube.png", lProducts, tProducts, Color.FIREBRICK),
                 Container("/assets/money.png", lSales, tSales, Color.DARKSLATEBLUE),
-                Container("/assets/phone.png", lPhones, tPhones, Color.ORANGE),
+                Container("/assets/users.png", lUsers, tUsers, Color.ORANGE),
                 Container("/assets/expense.png",lExpenses, tExpense, Color.CORAL));
         hRoot.setPadding(new Insets(25.0,25.0,25.0,25.0));
 
@@ -179,8 +178,6 @@ public class Dashboard {
         filterDatePicker.setOnAction((e) -> {
             lRevenue.setText(String.valueOf(database.getTotalRevenue(String.valueOf(filterDatePicker.getValue()))));
             lSales.setText(String.valueOf(database.getTotalSales(String.valueOf(filterDatePicker.getValue()))));
-            lPhones.setText(String.valueOf(database.getRevenueOfTask("Phones", "profit",
-                    String.valueOf(filterDatePicker.getValue()))));
             lExpenses.setText(String.valueOf(database.getRevenueOfTask("Expenses", "cost",
                     String.valueOf(filterDatePicker.getValue()))));
             salesProgress.setProgress(database.getTotalSales(String.valueOf(filterDatePicker.getValue())) / database.getTotalCostOfProducts());
@@ -216,10 +213,20 @@ public class Dashboard {
         icon.setFitHeight(35);
         Label productL = new Label("ALL PRODUCTS", icon);
         productL.setContentDisplay(ContentDisplay.LEFT);
-        productL.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 15));
+        productL.setFont(Font.font("Verdana", FontWeight.BOLD, 15));
         HBox hRight = new HBox(productL);
         hRight.setAlignment(Pos.CENTER_LEFT);
         hRight.setPadding(new Insets(25.0,25.0,25.0,25.0));
+
+        Label searchL = new Label("Search Product");
+        searchL.setFont(Font.font(16.0));
+        TextField search = new TextField();
+        search.setPromptText("product code");
+        search.setPrefWidth(150);
+        search.setFont(Font.font(18.0));
+        HBox hCenter = new HBox(8.0);
+        hCenter.getChildren().addAll(searchL, search);
+        hCenter.setAlignment(Pos.CENTER);
 
         Button addProduct = new Button("ADD NEW");
         addProduct.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 16));
@@ -231,12 +238,21 @@ public class Dashboard {
         AnchorPane.setTopAnchor(hLeft, 6.0);
         hLeft.setPadding(new Insets(25.0,25.0,25.0,25.0));
 
-        AnchorPane htopRoot = new AnchorPane(hRight, hLeft);
+        AnchorPane htopRoot = new AnchorPane(hRight, hCenter, hLeft);
+        AnchorPane.setLeftAnchor(hCenter, 400.0);
+        AnchorPane.setTopAnchor(hCenter, 30.0);
         htopRoot.setBackground(new Background(new BackgroundFill(Color.DODGERBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        VBox table = new VBox(ims.viewProducts());
+        VBox table = new VBox(ims.viewProducts(database.getProducts()));
         table.setPadding(new Insets(15.0));
         vRoot.getChildren().addAll(htopRoot, table);
+
+        search.setOnKeyTyped((e) ->{
+            if (search.getText().length() > 1){
+                table.getChildren().clear();
+                table.getChildren().add(ims.viewProducts(database.getProducts(search.getText())));
+            }
+        });
 
         AnchorPane.setTopAnchor(vRoot, 0.0);
         AnchorPane.setLeftAnchor(vRoot, 0.0);
@@ -259,7 +275,7 @@ public class Dashboard {
         icon.setFitHeight(35);
         Label salesL = new Label("ALL SALES", icon);
         salesL.setContentDisplay(ContentDisplay.LEFT);
-        salesL.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 15));
+        salesL.setFont(Font.font("Verdana", FontWeight.BOLD, 15));
         HBox hRight = new HBox(salesL);
         hRight.setAlignment(Pos.CENTER_LEFT);
         hRight.setPadding(new Insets(25.0,25.0,25.0,25.0));
@@ -274,7 +290,7 @@ public class Dashboard {
             table.getChildren().add(sales.viewSales(stage, database.getSalesByDate(String.valueOf(datePicker.getValue()))));
         });
         HBox hCenter = new HBox(datePicker);
-        AnchorPane.setLeftAnchor(hCenter,400.0);
+        AnchorPane.setLeftAnchor(hCenter,200.0);
         AnchorPane.setTopAnchor(hCenter, 6.0);
         hCenter.setPadding(new Insets(25.0,25.0,25.0,25.0));
 
@@ -290,11 +306,21 @@ public class Dashboard {
         });
 
         HBox hLeft = new HBox(search);
-        AnchorPane.setRightAnchor(hLeft,20.0);
+        AnchorPane.setRightAnchor(hLeft,300.0);
         AnchorPane.setTopAnchor(hLeft, 6.0);
         hLeft.setPadding(new Insets(25.0,25.0,25.0,25.0));
 
-        AnchorPane htopRoot = new AnchorPane(hRight, hCenter, hLeft);
+        Button cancel_sale = new Button("CANCEL SALE");
+        cancel_sale.setFont(Font.font(15.0));
+        cancel_sale.setBackground(new Background(new BackgroundFill(Color.CRIMSON, CornerRadii.EMPTY, Insets.EMPTY)));
+        cancel_sale.setTextFill(Color.WHITE);
+        cancel_sale.setOnAction((e) -> sales.cancelSale());
+        HBox hCancel = new HBox(cancel_sale);
+        hCancel.setPadding(new Insets(25.0,25.0,25.0,25.0));
+        AnchorPane.setRightAnchor(hCancel, 20.0);
+        AnchorPane.setTopAnchor(hCancel, 6.0);
+
+        AnchorPane htopRoot = new AnchorPane(hRight, hCenter, hLeft, hCancel);
         htopRoot.setBackground(new Background(new BackgroundFill(Color.DODGERBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
 
         table.setPadding(new Insets(15.0));
@@ -308,79 +334,6 @@ public class Dashboard {
 
         return root;
     }
-
-    public AnchorPane phonesRoot(Stage stage){
-        AnchorPane root = new AnchorPane();
-
-        VBox vRoot = new VBox(15.0);
-        VBox table = new VBox(phones.viewPhones(stage, database.getPhones()));
-
-        ImageView icon = new ImageView(new Image(Objects.requireNonNull(InventoryApplication.class.
-                getResourceAsStream("/assets/phone.png"))));
-        icon.setFitWidth(35);
-        icon.setFitHeight(35);
-        Label phonesL = new Label("PHONES REPAIRED", icon);
-        phonesL.setContentDisplay(ContentDisplay.LEFT);
-        phonesL.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 15));
-        HBox hRight = new HBox(phonesL);
-        hRight.setAlignment(Pos.CENTER_LEFT);
-        hRight.setPadding(new Insets(25.0,25.0,25.0,25.0));
-
-        DatePicker datePicker = new DatePicker();
-        datePicker.setPrefHeight(41);
-        datePicker.setPrefWidth(180);
-        datePicker.setEditable(true);
-        datePicker.setPromptText("Filter By Date");
-        datePicker.setOnAction((e) -> {
-            table.getChildren().clear();
-            table.getChildren().add(phones.viewPhones(stage, database.getPhonesByDate(String.valueOf(datePicker.getValue()))));
-        });
-        HBox hCenter = new HBox(datePicker);
-        AnchorPane.setLeftAnchor(hCenter,400.0);
-        AnchorPane.setTopAnchor(hCenter, 6.0);
-        hCenter.setPadding(new Insets(25.0,25.0,25.0,25.0));
-
-        TextField search = new TextField();
-        search.setPromptText("search imei");
-        search.setPrefWidth(150);
-        search.setFont(Font.font(18.0));
-        search.setOnKeyTyped((e) ->{
-            if (search.getText().length() > 1){
-                table.getChildren().clear();
-                table.getChildren().add(phones.viewPhones(stage, database.getPhonesByIMEI(search.getText())));
-            }
-        });
-
-        HBox hLeft = new HBox(search);
-        AnchorPane.setRightAnchor(hLeft,200.0);
-        AnchorPane.setTopAnchor(hLeft, 6.0);
-        hLeft.setPadding(new Insets(25.0,25.0,25.0,25.0));
-
-        Button add = new Button("Add");
-        add.setBackground(new Background(new BackgroundFill(Color.CRIMSON, CornerRadii.EMPTY, Insets.EMPTY)));
-        add.setFont(Font.font(15.0));
-        add.setTextFill(Color.WHITE);
-        add.setOnAction((e) -> phones.AddNewPhoneRepaired());
-        HBox farLeft = new HBox(add);
-        farLeft.setPadding(new Insets(25.0,25.0,25.0,25.0));
-        AnchorPane.setRightAnchor(farLeft,20.0);
-        AnchorPane.setTopAnchor(farLeft, 6.0);
-
-        AnchorPane htopRoot = new AnchorPane(hRight, hCenter, hLeft, farLeft);
-        htopRoot.setBackground(new Background(new BackgroundFill(Color.DODGERBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-
-        table.setPadding(new Insets(15.0));
-        vRoot.getChildren().addAll(htopRoot, table);
-
-        AnchorPane.setTopAnchor(vRoot, 0.0);
-        AnchorPane.setLeftAnchor(vRoot, 0.0);
-        AnchorPane.setRightAnchor(vRoot, 0.0);
-
-        root.getChildren().addAll(vRoot);
-
-        return root;
-    }
-
     public AnchorPane expensesRoot(Stage stage){
         AnchorPane root = new AnchorPane();
 
@@ -394,7 +347,7 @@ public class Dashboard {
         icon.setFitHeight(35);
         Label expenseL = new Label("ALL EXPENSES", icon);
         expenseL.setContentDisplay(ContentDisplay.LEFT);
-        expenseL.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 15));
+        expenseL.setFont(Font.font("Verdana", FontWeight.BOLD, 15));
         HBox hRight = new HBox(expenseL);
         hRight.setAlignment(Pos.CENTER_LEFT);
         hRight.setPadding(new Insets(25.0,25.0,25.0,25.0));

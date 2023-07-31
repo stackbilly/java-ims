@@ -1,5 +1,6 @@
 package com.stacklink.inventory_management_system;
 
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -12,6 +13,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 
 public class IMSProduct {
 
@@ -54,7 +56,7 @@ public class IMSProduct {
         categoryL.setFont(Font.font(18.0));
         grid.add(categoryL, 0,3);
         ComboBox<String> category = new ComboBox<>();
-        category.getItems().addAll(database.getCategoryData());
+        category.getItems().addAll(database.getCategoryData("Product"));
         category.setValue("Select One");
         category.setEditable(false);
         category.setMinWidth(57);
@@ -132,7 +134,7 @@ public class IMSProduct {
         window.showAndWait();
     }
 
-    public TableView<Product> viewProducts(){
+    public TableView<Product> viewProducts(ObservableList<Product> productObservableList){
         TableView<Product> productTable = new TableView<>();
         productTable.setPlaceholder(new Label("Zero products are currently available"));
         productTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -171,6 +173,12 @@ public class IMSProduct {
         TableColumn<Product, String> quantity = new TableColumn<>("Quantity");
         quantity.setCellValueFactory((e) -> e.getValue().quantityProperty());
         quantity.setCellFactory(TextFieldTableCell.forTableColumn());
+        Comparator<String> comparator = (v1,v2) -> {
+            Integer i1 = Integer.parseInt(v1);
+            Integer i2 = Integer.parseInt(v2);
+            return i2 - i1;
+        };
+        quantity.setComparator(comparator);
         quantity.setOnEditCommit(e -> {
             if(database.updateProduct("Product","quantity", Integer.parseInt(e.getOldValue()),
                     Integer.parseInt(e.getNewValue())))
@@ -200,7 +208,7 @@ public class IMSProduct {
         productTable.editableProperty().setValue(true);
 
         productTable.getColumns().addAll(indexCol, name, description, code, category, quantity, cost, sale,total, sales);
-        productTable.setItems(database.getProducts());
+        productTable.setItems(productObservableList);
 
         return productTable;
     }

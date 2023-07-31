@@ -27,24 +27,11 @@ public class IMSExpense {
         Label name = new Label("Expense Name");
         name.setFont(Font.font(18.0));
         ComboBox<String> expenseName = new ComboBox<>();
-        expenseName.getItems().addAll(
-                "Rent",
-                "Food expense",
-                "Wages",
-                "Fuel",
-                "Electricity",
-                "License Fees",
-                "KRA Fees",
-                "Fines and Legal Fees",
-                "Debt",
-                "Miscellaneous",
-                "Projects",
-                "Other"
-        );
+        expenseName.getItems().addAll(database.getCategoryData("Expense"));
         expenseName.setEditable(true);
         expenseName.setMinHeight(41);
         expenseName.setMinWidth(50);
-        expenseName.setValue("Rent");
+        expenseName.setPromptText("Select One");
         grid.add(name,0,0);
         grid.add(expenseName,1,0);
 
