@@ -89,8 +89,6 @@ public class InventoryApplication extends Application {
         Button login = new Button("LOGIN");
         login.setFont(Font.font(20.0));
         login.setOnAction(e -> {
-//            primaryStage.close();
-//            DashBoardUserInterface();
             boolean isUser;
             ArrayList<String> userDetail = database.getUser(userName.getText());
             if (userDetail.size() > 1){
@@ -130,11 +128,12 @@ public class InventoryApplication extends Application {
         AnchorPane.setLeftAnchor(hBar,0.0);
         AnchorPane.setRightAnchor(hBar,0.0);
 
-        Hyperlink forgot_password = new Hyperlink("Forgot Password?");
-        AnchorPane.setBottomAnchor(forgot_password, 180.0);
-        AnchorPane.setLeftAnchor(forgot_password, 100.0);
+        Hyperlink set_up_bus = new Hyperlink("Set up business?");
+        AnchorPane.setBottomAnchor(set_up_bus, 180.0);
+        AnchorPane.setRightAnchor(set_up_bus, 100.0);
+        set_up_bus.setOnAction((e) -> businessSetUp());
 
-        loginLayout.getChildren().addAll(grid, btn_Layout, hBar, forgot_password);
+        loginLayout.getChildren().addAll(grid, btn_Layout, hBar, set_up_bus);
         rootLayout.getChildren().add(loginLayout);
 
         Scene scene = new Scene(rootLayout, 1300,690,true);
@@ -151,51 +150,99 @@ public class InventoryApplication extends Application {
         primaryStage.show();
     }
 
-    public static void addUser(){
-        Stage primaryStage = new Stage(StageStyle.UTILITY);
-        primaryStage.initModality(Modality.APPLICATION_MODAL);
+    public static void businessSetUp(){
+       Stage window = new Stage(StageStyle.UTILITY);
 
         AnchorPane root = new AnchorPane();
+
         IMSDatabase database = new IMSDatabase();
 
+        DialogWindow dialog = new DialogWindow();
+
         GridPane grid = new GridPane();
-        grid.setVgap(15);
+        grid.setVgap(10);
         grid.setHgap(15);
+        grid.setPadding(new Insets(20.0,20.0,20.0,20.0));
 
-        AnchorPane.setTopAnchor(grid, 20.0);
-        AnchorPane.setLeftAnchor(grid, 50.0);
+        Label name = new Label("Name");
+        name.setFont(Font.font(18.0));
+        TextField busName = new TextField();
+        busName.setFont(Font.font(20.0));
+        busName.setPromptText("name of business");
+        grid.add(name, 0, 0);
+        grid.add(busName,1,0);
 
-        Label username = new Label("Username");
-        username.setFont(Font.font(18.0));
+        Label taglineL = new Label("Tagline");
+        taglineL.setFont(Font.font(18.0));
+        TextField taglineF = new TextField();
+        taglineF.setFont(Font.font(20.0));
+        grid.add(taglineL, 0,1);
+        grid.add(taglineF, 1,1);
+
+        Label addressL = new Label("Address");
+        addressL.setFont(Font.font(18.0));
+        TextArea addressF = new TextArea();
+        addressF.setPrefWidth(200);
+        addressF.setPrefRowCount(1);
+        addressF.setFont(Font.font(20.0));
+        grid.add(addressL, 0,2);
+        grid.add(addressF, 1,2);
+
+        Label usernameL = new Label("Username");
+        usernameL.setFont(Font.font(18.0));
         TextField usernameF = new TextField();
         usernameF.setFont(Font.font(20.0));
-        grid.add(username, 0, 0);
-        grid.add(usernameF, 1,0);
+        grid.add(usernameL, 0,3);
+        grid.add(usernameF, 1,3);
+
+        Label phoneNoL = new Label("PhoneNo");
+        phoneNoL.setFont(Font.font(18.0));
+        TextField phoneNoF = new TextField();
+        phoneNoF.setFont(Font.font(18.0));
+        grid.add(phoneNoL, 0,4);
+        grid.add(phoneNoF, 1,4);
 
         Label passwordL = new Label("Password");
         passwordL.setFont(Font.font(18.0));
         PasswordField passwordF = new PasswordField();
         passwordF.setFont(Font.font(20.0));
-        grid.add(passwordL, 0,1);
-        grid.add(passwordF, 1,1);
+        grid.add(passwordL, 0,5);
+        grid.add(passwordF, 1,5);
 
-        Button addUser = new Button("ADD USER");
-        addUser.setFont(Font.font(20.0));
-        addUser.setOnAction(event -> {
-            database.addUser(usernameF.getText(), passwordF.getText());
-            primaryStage.close();
+        HBox btnLayout = new HBox(30);
+        Button cancel = new Button("Cancel");
+        cancel.setFont(Font.font(20.0));
+        cancel.setTextFill(Color.WHITE);
+        cancel.setBackground(new Background(new BackgroundFill(Color.DARKRED, CornerRadii.EMPTY, Insets.EMPTY)));
+        cancel.setOnAction(e-> window.close());
+
+        Button submit = new Button("Submit");
+        submit.setFont(Font.font(20.0));
+        submit.setTextFill(Color.WHITE);
+        submit.setOnAction((e) -> {
+            if (database.addBusiness(busName.getText(), taglineF.getText(), addressF.getText(), usernameF.getText(), phoneNoF.getText(), passwordF.getText())){
+                dialog.showDialog("Success", busName.getText()+" added successfully proceed to login");
+                window.close();
+            }else {
+                dialog.showDialog("Fail", busName.getText()+" addition fail! Contact system administrator");
+                window.close();
+            }
         });
+        submit.setBackground(new Background(new BackgroundFill(Color.DARKSLATEBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        AnchorPane.setLeftAnchor(addUser, 150.0);
-        AnchorPane.setBottomAnchor(addUser, 50.0);
+        btnLayout.getChildren().addAll(submit,cancel);
+        grid.add(btnLayout,1,8);
 
-        root.getChildren().addAll(grid, addUser);
-        Scene scene = new Scene(root, 544, 240, true);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("Add New User");
-        primaryStage.showAndWait();
+        root.getChildren().add(grid);
+        AnchorPane.setLeftAnchor(grid, 80.0);
+
+        Scene scene = new Scene(root, 587, 510,true);
+        window.setScene(scene);
+        window.setTitle("Business Details");
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setResizable(false);
+        window.showAndWait();
     }
-
     public static void DashBoardUserInterface(){
         Stage dashboardStage = new Stage();
 
@@ -203,6 +250,7 @@ public class InventoryApplication extends Application {
         Dashboard dB = new Dashboard();
         IMSCategory mCategory = new IMSCategory();
         IMSReports reports = new IMSReports();
+        IMSUser _user = new IMSUser();
 
         AnchorPane root = new AnchorPane();
         root.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -318,21 +366,8 @@ public class InventoryApplication extends Application {
         sales.setOnMouseExited(e -> sales.setBackground(null));
         sales.setOnMouseEntered(e -> sales.setBackground(new Background(new BackgroundFill(Color.grayRgb(40), CornerRadii.EMPTY, Insets.EMPTY))));
 
-        ImageView phone_icon = new ImageView(new Image(Objects.requireNonNull(InventoryApplication.class.getResourceAsStream("/assets/phone.png"))));
-        phone_icon.setFitHeight(20);
-        phone_icon.setFitWidth(20);
-        Label phone = new Label("Phones", phone_icon);
-        phone.setPadding(new Insets(10.0,10.0,10.0,10.0));
-        phone.setContentDisplay(ContentDisplay.LEFT);
-        phone.setPrefWidth(280);
-        phone.setPrefHeight(60);
-        phone.setFont(Font.font("Verdana", FontWeight.MEDIUM, 17));
-        phone.setTextFill(Color.WHITE);
-        phone.setOnMouseClicked(e -> pane.setCenter(dB.phonesRoot(dashboardStage)));
-        phone.setOnMouseExited(e -> phone.setBackground(null));
-        phone.setOnMouseEntered(e -> phone.setBackground(new Background(new BackgroundFill(Color.grayRgb(40), CornerRadii.EMPTY, Insets.EMPTY))));
 
-        ImageView report_icon = new ImageView(new Image(Objects.requireNonNull(InventoryApplication.class.getResourceAsStream("/assets/sales1.png"))));
+        ImageView report_icon = new ImageView(new Image(Objects.requireNonNull(InventoryApplication.class.getResourceAsStream("/assets/report.png"))));
         report_icon.setFitHeight(20);
         report_icon.setFitWidth(20);
         Label report = new Label("Reports", report_icon);
@@ -343,7 +378,7 @@ public class InventoryApplication extends Application {
         report.setFont(Font.font("Verdana", FontWeight.MEDIUM, 17));
         report.setTextFill(Color.WHITE);
         report.setOnMouseExited(e -> report.setBackground(null));
-        report.setOnMouseClicked((e) -> reports.generateDailyReport());
+        report.setOnMouseClicked((e) -> pane.setCenter(reports.IMSReportsPage()));
         report.setOnMouseEntered(e -> report.setBackground(new Background(new BackgroundFill(Color.grayRgb(40), CornerRadii.EMPTY, Insets.EMPTY))));
 
         ImageView user_icon = new ImageView(new Image(Objects.requireNonNull(InventoryApplication.class.getResourceAsStream("/assets/users.png"))));
@@ -357,7 +392,7 @@ public class InventoryApplication extends Application {
         user.setFont(Font.font("Verdana", FontWeight.MEDIUM, 17));
         user.setTextFill(Color.WHITE);
         user.setOnMouseExited(e -> user.setBackground(null));
-        user.setOnMouseClicked((e) -> addUser());
+        user.setOnMouseClicked((e) -> pane.setCenter(_user.userInterface()));
         user.setOnMouseEntered(e -> user.setBackground(new Background(new BackgroundFill(Color.grayRgb(40), CornerRadii.EMPTY, Insets.EMPTY))));
 
         Label dateL = new Label("Date");
@@ -366,7 +401,7 @@ public class InventoryApplication extends Application {
         filterDatePicker.setMinWidth(50);
         filterDatePicker.setMinHeight(41);
 
-        sideBar.getChildren().addAll(lblBox,dashboard, user, category, product, lPos, sales, phone, expenses, report);
+        sideBar.getChildren().addAll(lblBox,dashboard, user, category, product, lPos, sales, expenses, report);
         pane.setLeft(sideBar);
         pane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 

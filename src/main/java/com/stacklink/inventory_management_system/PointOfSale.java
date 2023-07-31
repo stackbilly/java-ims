@@ -96,26 +96,6 @@ public class PointOfSale {
 
         Button add = new Button("Add");
         add.setFont(Font.font(15.0));
-        add.setOnAction(e -> {
-            if (Integer.parseInt(quantityF.getText()) > ims.getProductQuantity(nameF.getText())){
-                dialog.showDialog("Alert", "Product demanded cannot be greater than supply");
-            }else {
-                Cart cart = new Cart("",
-                        codeF.getText(), nameF.getText(),
-                        quantityF.getText(), priceF.getText(), "0", String.valueOf(LocalDate.now())
-                );
-                ims.updateProductOnSale(codeF.getText(), Integer.parseInt(quantityF.getText()));
-                ArrayList<String> saleData = ims.getSaleData(codeF.getText());
-                if(ims.addSaleData(cart, saleData.get(3))){
-                    dialog.showDialog("Success", nameF.getText()+" added to database");
-                    codeF.clear();
-                    nameF.clear();
-                    quantityF.clear();
-                    priceF.clear();
-                    new PointOfSale();
-                }
-            }
-        });
         add.setPrefWidth(100);
 
         hField.getChildren().addAll(codeL, codeF, nameL, nameF, quantityL, quantityF,priceL, priceF, add);
@@ -159,6 +139,33 @@ public class PointOfSale {
         priceCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
         cartTableView.getColumns().addAll(saleIDCol, codeCol, nameCol, qtyCol, priceCol);
+
+        add.setOnAction(e -> {
+            if (Integer.parseInt(quantityF.getText()) > ims.getProductQuantity(nameF.getText())){
+                dialog.showDialog("Alert", "Product demanded cannot be greater than supply");
+            }
+            else if (Integer.parseInt(quantityF.getText()) == 0){
+                dialog.showDialog("Alert", "You cannot demand nothing!");
+            }
+            else {
+                Cart cart = new Cart("",
+                        codeF.getText(), nameF.getText(),
+                        quantityF.getText(), priceF.getText(), "0", String.valueOf(LocalDate.now())
+                );
+                ims.updateProductOnSale(codeF.getText(), Integer.parseInt(quantityF.getText()));
+                ArrayList<String> saleData = ims.getSaleData(codeF.getText());
+                if(ims.addSaleData(cart, saleData.get(3))){
+                    dialog.showDialog("Success", nameF.getText()+" added to database");
+                    cartTableView.getItems().add(cart);
+                    codeF.clear();
+                    nameF.clear();
+                    quantityF.clear();
+                    priceF.clear();
+                    new PointOfSale();
+                }
+            }
+        });
+
         cartTableView.setItems(ims.getSaleData());
         int total = 0;
         for (Cart cart : ims.getSaleData())
@@ -235,30 +242,31 @@ public class PointOfSale {
         PDFont font = PDType1Font.HELVETICA_BOLD;
         ims.addPaySlip(new PaySlip(totalF.getText(), paidF.getText(), balance.getText()));
         String receiptPath;
+        ArrayList<String> businessInfo = ims.getBusinessInfo();
         try {
             PDPageContentStream cs = new PDPageContentStream(receiptDocument, newPage);
             cs.beginText();
             cs.setFont(font, 20);
             cs.newLineAtOffset(150, 750);
-            cs.showText("Kakamega Phone Care Centre");
+            cs.showText(businessInfo.get(0));
             cs.endText();
 
             cs.beginText();
             cs.setFont(PDType1Font.TIMES_ITALIC, 12);
             cs.newLineAtOffset(200, 730);
-            cs.showText("Dealers in Phone Repairs and Spares");
+            cs.showText(businessInfo.get(1));
             cs.endText();
 
             cs.beginText();
             cs.setFont(PDType1Font.TIMES_ITALIC, 12);
-            cs.newLineAtOffset(160, 710);
-            cs.showText("Located at Canon Awuor RD opp Menengai Hardware");
+            cs.newLineAtOffset(190, 710);
+            cs.showText(businessInfo.get(2));
             cs.endText();
 
             cs.beginText();
             cs.setFont(PDType1Font.TIMES_ITALIC, 12);
             cs.newLineAtOffset(215, 690);
-            cs.showText("Tel Phone No +254790901424");
+            cs.showText("Tel Phone No "+businessInfo.get(3));
             cs.endText();
 
             cs.beginText();

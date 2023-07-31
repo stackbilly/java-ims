@@ -5,19 +5,31 @@ import javafx.beans.property.StringProperty;
 
 public class Category {
     private SimpleStringProperty categoryName;
-    private SimpleStringProperty status;
+    private SimpleStringProperty type;
     private SimpleStringProperty index;
 
-    public Category(String index, String categoryName, String status){
+    public Category(String index, String categoryName, String type){
         this.categoryName = new SimpleStringProperty(categoryName);
         this.index = new SimpleStringProperty(index);
-        this.status = new SimpleStringProperty(status);
+        this.type = new SimpleStringProperty(type);
     }
 
     public StringProperty categoryNameProperty(){return categoryName;}
     public StringProperty getIndexProperty(){return index;}
 
-    public SimpleStringProperty statusProperty() {
-        return status;
+    public SimpleStringProperty typeProperty() {
+        return type;
+    }
+
+    public String getCategoryName() {
+        return categoryName.get();
+    }
+
+    public String getIndex() {
+        return index.get();
+    }
+
+    public String getType() {
+        return type.get();
     }
 }

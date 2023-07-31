@@ -1,13 +1,16 @@
 package com.stacklink.inventory_management_system;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -19,6 +22,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static org.apache.pdfbox.pdmodel.font.PDType1Font.*;
 
@@ -86,37 +90,38 @@ public class IMSReports {
         DailyReport.addPage(reportPage);
         PDPage newPage = DailyReport.getPage(0);
         String reportPath;
+        ArrayList<String> businessData = database.getBusinessInfo();
         try {
             PDPageContentStream cs = new PDPageContentStream(DailyReport,newPage);
 
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 20);
-            cs.newLineAtOffset(200, 750);
-            cs.showText("Kakamega Phone Care Centre");
+            cs.newLineAtOffset(205, 750);
+            cs.showText(businessData.get(0));
             cs.endText();
 
             cs.beginText();
             cs.setFont(TIMES_ITALIC, 17);
             cs.newLineAtOffset(200, 720);
-            cs.showText("Dealers in Phone Repairs and Spares");
+            cs.showText(businessData.get(1));
             cs.endText();
 
             cs.beginText();
             cs.setFont(TIMES_ITALIC, 17);
             cs.newLineAtOffset(200, 690);
-            cs.showText("PO Box 36 - 50100  Kakamega");
+            cs.showText(businessData.get(2));
             cs.endText();
 
             cs.beginText();
             cs.setFont(TIMES_ITALIC, 17);
             cs.newLineAtOffset(200, 660);
-            cs.showText("Tel Phone No +254790901424");
+            cs.showText("Tel Phone No "+businessData.get(3));
             cs.endText();
 
             cs.beginText();
             cs.setFont(TIMES_BOLD_ITALIC, 20);
             cs.newLineAtOffset(180, 600);
-            cs.showText("Daily Business Report for"+database.formatDate(date));
+            cs.showText("Daily Business Report for "+database.formatDate(date));
             cs.endText();
 
             cs.beginText();
@@ -140,95 +145,30 @@ public class IMSReports {
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 18);
             cs.newLineAtOffset(270, 450);
-            cs.showText("Phones");
-            cs.endText();
-
-            cs.beginText();
-            cs.setFont(TIMES_ROMAN, 14);
-            cs.newLineAtOffset(80, 430);
-            cs.showText("Phones Repaired");
-            cs.endText();
-
-            cs.beginText();
-            cs.setFont(TIMES_ROMAN, 14);
-            cs.newLineAtOffset(200, 430);
-            cs.showText("Amount Spent");
-            cs.endText();
-
-            cs.beginText();
-            cs.setFont(TIMES_ROMAN, 14);
-            cs.newLineAtOffset(310, 430);
-            cs.showText("Amount Received");
-            cs.endText();
-
-            cs.beginText();
-            cs.setFont(TIMES_ROMAN, 14);
-            cs.newLineAtOffset(470, 430);
-            cs.showText("Profit");
-            cs.endText();
-
-            ArrayList<Integer> phoneRepairedData = database.getDailyPhoneRepairedData(date);
-
-            //Phones Repaired
-            cs.beginText();
-            cs.setFont(TIMES_ROMAN, 12);
-            cs.setLeading(20f);
-            cs.newLineAtOffset(80, 410);
-            cs.showText(String.valueOf(phoneRepairedData.get(0)));
-            cs.endText();
-
-//            Amount Spent
-            cs.beginText();
-            cs.setFont(TIMES_ROMAN, 12);
-            cs.setLeading(20f);
-            cs.newLineAtOffset(200, 410);
-            cs.showText(String.valueOf(phoneRepairedData.get(1)));
-            cs.endText();
-
-//            Amount Received
-            cs.beginText();
-            cs.setFont(TIMES_ROMAN, 12);
-            cs.setLeading(20f);
-            cs.newLineAtOffset(310, 410);
-            cs.showText(String.valueOf(phoneRepairedData.get(2)));
-            cs.endText();
-
-//            Profit
-            cs.beginText();
-            cs.setFont(TIMES_ROMAN, 12);
-            cs.setLeading(20f);
-            cs.newLineAtOffset(470, 410);
-            cs.showText(String.valueOf(phoneRepairedData.get(3)));
-            cs.endText();
-
-
-            cs.beginText();
-            cs.setFont(TIMES_ROMAN, 18);
-            cs.newLineAtOffset(270, 350);
             cs.showText("Inventory Data");
             cs.endText();
 
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 14);
-            cs.newLineAtOffset(80, 320);
+            cs.newLineAtOffset(80, 420);
             cs.showText("Remaining Stock");
             cs.endText();
 
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 14);
-            cs.newLineAtOffset(200, 320);
+            cs.newLineAtOffset(200, 420);
             cs.showText("Daily Sales");
             cs.endText();
 
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 14);
-            cs.newLineAtOffset(310, 320);
+            cs.newLineAtOffset(310, 420);
             cs.showText("Amount Received");
             cs.endText();
 
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 14);
-            cs.newLineAtOffset(470, 320);
+            cs.newLineAtOffset(470, 420);
             cs.showText("Profit");
             cs.endText();
 
@@ -237,7 +177,7 @@ public class IMSReports {
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 12);
             cs.setLeading(20f);
-            cs.newLineAtOffset(80, 300);
+            cs.newLineAtOffset(80, 400);
             cs.showText(String.valueOf(sales_data.get(0)));
             cs.endText();
 
@@ -245,7 +185,7 @@ public class IMSReports {
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 12);
             cs.setLeading(20f);
-            cs.newLineAtOffset(200, 300);
+            cs.newLineAtOffset(200, 400);
             cs.showText(String.valueOf(sales_data.get(1)));
             cs.endText();
 
@@ -253,27 +193,27 @@ public class IMSReports {
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 12);
             cs.setLeading(20f);
-            cs.newLineAtOffset(310, 300);
+            cs.newLineAtOffset(310, 400);
             cs.showText(String.valueOf(sales_data.get(2)));
             cs.endText();
 //            Profit
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 12);
             cs.setLeading(20f);
-            cs.newLineAtOffset(470, 300);
+            cs.newLineAtOffset(470, 400);
             cs.showText(String.valueOf(sales_data.get(3)));
             cs.endText();
 
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 20);
-            cs.newLineAtOffset(270, 250);
+            cs.newLineAtOffset(270, 350);
             cs.showText("Summary");
             cs.endText();
 
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 17);
             cs.setLeading(20f);
-            cs.newLineAtOffset(60, 200);
+            cs.newLineAtOffset(60, 300);
             cs.showText("Daily Expenses:");
             cs.newLine();
             cs.showText("Total Amount Received:");
@@ -288,24 +228,23 @@ public class IMSReports {
             cs.beginText();
             cs.setFont(TIMES_ROMAN, 17);
             cs.setLeading(20f);
-            cs.newLineAtOffset(270, 200);
+            cs.newLineAtOffset(270, 300);
             int totalExpenses = database.getRevenueOfTask("Expenses", "cost", date);
             cs.showText(String.valueOf(totalExpenses));
             cs.newLine();
-            int amountReceivedTotal = phoneRepairedData.get(2) + sales_data.get(2);
+            int amountReceivedTotal =  sales_data.get(2);
             cs.showText(String.valueOf(amountReceivedTotal));
             cs.newLine();
-            int totalAmountSpent = phoneRepairedData.get(1) + totalExpenses;
-            cs.showText(String.valueOf(totalAmountSpent));
+            cs.showText(String.valueOf(totalExpenses));
             cs.newLine();
-            int totalProfit = amountReceivedTotal - totalAmountSpent;
+            int totalProfit = sales_data.get(3) - totalExpenses;
             cs.showText(String.valueOf(totalProfit));
             cs.newLine();
             cs.showText("Management");
             cs.endText();
 
             cs.beginText();
-            cs.newLineAtOffset(200, 30);
+            cs.newLineAtOffset(200, 50);
             cs.setLeading(20f);
             cs.setFont(TIMES_BOLD_ITALIC, 14);
             cs.showText("Software Built by Stack Billy");
@@ -334,5 +273,157 @@ public class IMSReports {
             throw new RuntimeException(e);
         }
         return reportPath;
+    }
+
+    public AnchorPane IMSReportsPage(){
+        ArrayList<String> businessInfo = database.getBusinessInfo();
+        AnchorPane root = new AnchorPane();
+
+        Button genReport = new Button("Daily Report");
+        genReport.setFont(Font.font(20.0));
+        genReport.setBackground(new Background(new BackgroundFill(Color.CRIMSON, CornerRadii.EMPTY, Insets.EMPTY)));
+        genReport.setOnAction((e) -> generateDailyReport());
+        genReport.setTextFill(Color.WHITE);
+
+        GridPane grid = new GridPane();
+        grid.setVgap(12.0);
+        grid.setHgap(12.0);
+        grid.setPadding(new Insets(20.0,20.0,20.0,20.0));
+
+        Label title = new Label("Business Information");
+        title.setFont(Font.font("Impact", FontWeight.MEDIUM, 20));
+        title.setTextFill(Color.WHITE);
+        title.underlineProperty().setValue(true);
+        AnchorPane.setTopAnchor(title, 10.0);
+        AnchorPane.setLeftAnchor(title, 130.0);
+
+        Label name = new Label("Name: ");
+        name.setFont(Font.font("Verdana", FontWeight.MEDIUM, FontPosture.ITALIC, 16));
+        grid.add(name, 0,0);
+        Label vName = new Label(businessInfo.get(0));
+        vName.setFont(Font.font("Verdana", FontWeight.MEDIUM, FontPosture.REGULAR, 16));
+        grid.add(vName, 1,0);
+
+        Label tagline = new Label("Tagline: ");
+        tagline.setFont(Font.font("Verdana", FontWeight.MEDIUM, FontPosture.ITALIC, 16));
+        grid.add(tagline, 0,1);
+        Label vTagline = new Label(businessInfo.get(1));
+        vTagline.setFont(Font.font("Verdana", FontWeight.MEDIUM, FontPosture.REGULAR, 16));
+        grid.add(vTagline, 1,1);
+
+        Label address = new Label("Location: ");
+        address.setFont(Font.font("Verdana", FontWeight.MEDIUM, FontPosture.ITALIC, 16));
+        grid.add(address, 0,2);
+        Label vAddress = new Label(businessInfo.get(2));
+        vAddress.setFont(Font.font("Verdana", FontWeight.MEDIUM, FontPosture.REGULAR, 16));
+        grid.add(vAddress,1,2);
+
+        Label phoneNo = new Label("Tel: ");
+        phoneNo.setFont(Font.font("Verdana", FontWeight.MEDIUM, FontPosture.ITALIC, 16));
+        grid.add(phoneNo, 0,3);
+        Label vPhoneNo = new Label(businessInfo.get(3));
+        vPhoneNo.setFont(Font.font("Verdana", FontWeight.MEDIUM, FontPosture.REGULAR, 16));
+        grid.add(vPhoneNo, 1,3);
+
+        Button edit = new Button("Edit");
+        edit.setTextFill(Color.WHITE);
+        edit.setFont(Font.font(18.0));
+        edit.setPrefSize(100.0, 40.0);
+        edit.setBackground(new Background(new BackgroundFill(Color.DARKSLATEBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+        grid.add(edit, 1,4);
+        edit.setOnAction((e) -> editBusinessInformation());
+
+        AnchorPane gridPane = new AnchorPane();
+        gridPane.setBackground(new Background(new BackgroundFill(Color.INDIANRED, CornerRadii.EMPTY,Insets.EMPTY)));
+        gridPane.setPrefHeight(200.0);
+        gridPane.setPrefWidth(250);
+        AnchorPane.setTopAnchor(grid, 40.0);
+        gridPane.getChildren().addAll(title, grid);
+
+        ImageView icon = new ImageView(new Image(Objects.requireNonNull(InventoryApplication.class.
+                getResourceAsStream("/assets/report.png"))));
+        icon.setFitWidth(35);
+        icon.setFitHeight(35);
+        Label reportL = new Label("REPORT PAGE", icon);
+        reportL.setContentDisplay(ContentDisplay.LEFT);
+        reportL.setFont(Font.font("Verdana", FontWeight.BOLD, 15));
+        HBox hRight = new HBox(reportL);
+        hRight.setAlignment(Pos.CENTER_RIGHT);
+        hRight.setPadding(new Insets(25.0,25.0,25.0,25.0));
+
+        HBox bar = new HBox(hRight);
+        bar.setBackground(new Background(new BackgroundFill(Color.DODGERBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+        AnchorPane.setTopAnchor(bar, 0.0);
+        AnchorPane.setLeftAnchor(bar, 0.0);
+        AnchorPane.setRightAnchor(bar, 0.0);
+        bar.setPrefHeight(60.0);
+
+        HBox children = new HBox(100.0);
+        children.getChildren().addAll(genReport, gridPane);
+        AnchorPane.setTopAnchor(children, 100.0);
+        AnchorPane.setLeftAnchor(children, 20.0);
+
+        root.getChildren().addAll(bar, children);
+
+        return root;
+    }
+
+    public void editBusinessInformation(){
+        AnchorPane root = new AnchorPane();
+        Stage window = new Stage(StageStyle.UTILITY);
+        window.initModality(Modality.APPLICATION_MODAL);
+
+        GridPane grid = new GridPane();
+        grid.setVgap(12.0);
+        grid.setHgap(12.0);
+        grid.setPadding(new Insets(20.0,20.0,20.0,20.0));
+
+        Label name = new Label("Name");
+        name.setFont(Font.font(18.0));
+        grid.add(name, 0,0);
+        TextField nameF = new TextField(database.getBusinessInfo().get(0));
+        nameF.setFont(Font.font(18.0));
+        grid.add(nameF, 1,0);
+
+        Label tagline = new Label("Tagline");
+        tagline.setFont(Font.font(18.0));
+        grid.add(tagline, 0,1);
+        TextArea taglineF = new TextArea(database.getBusinessInfo().get(1));
+        taglineF.setFont(Font.font(18.0));
+        grid.add(taglineF, 1,1);
+        taglineF.setPrefRowCount(2);
+        taglineF.setPrefColumnCount(2);
+
+        Label address = new Label("Address");
+        address.setFont(Font.font(18.0));
+        grid.add(address, 0,2);
+        TextArea addressF = new TextArea(database.getBusinessInfo().get(2));
+        addressF.setPrefRowCount(2);
+        addressF.setPrefColumnCount(2);
+        addressF.setFont(Font.font(18.0));
+        grid.add(addressF, 1,2);
+
+        Label tel = new Label("Tel");
+        tel.setFont(Font.font(18.0));
+        grid.add(tel, 0,3);
+        TextField telF = new TextField(database.getBusinessInfo().get(3));
+        telF.setFont(Font.font(18.0));
+        grid.add(telF,1,3);
+
+        Button update = new Button("UPDATE");
+        update.setFont(Font.font(20.0));
+        grid.add(update, 1,4);
+        update.setOnAction((e) -> {
+            if (database.updateBusinessInfo(nameF.getText(), taglineF.getText(), addressF.getText(), telF.getText())){
+                dialog.showDialog("Success", "Successfully updated "+nameF.getText()+" details");
+                window.close();
+            }
+        });
+        root.getChildren().add(grid);
+        Scene scene = new Scene(root, 410,400,true);
+        window.setScene(scene);
+        window.setResizable(false);
+        window.setTitle("Edit "+database.getBusinessInfo().get(0));
+        window.showAndWait();
     }
 }
