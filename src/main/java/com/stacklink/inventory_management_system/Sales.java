@@ -4,14 +4,14 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class Sales {
 
-    private SimpleStringProperty date;
-    private SimpleStringProperty saleID;
-    private SimpleStringProperty code;
-    private SimpleStringProperty name;
-    private SimpleStringProperty quantity;
-    private SimpleStringProperty price;
-    private SimpleStringProperty profit;
-    private SimpleStringProperty index;
+    private final SimpleStringProperty date;
+    private final SimpleStringProperty saleID;
+    private final SimpleStringProperty code;
+    private final SimpleStringProperty name;
+    private final SimpleStringProperty quantity;
+    private final SimpleStringProperty price;
+    private final SimpleStringProperty profit;
+    private final SimpleStringProperty index;
 
     public Sales(String index, String mDate, String mSaleID,String mCode, String mName, String mQuantity,
                  String mPrice, String mProfit){
