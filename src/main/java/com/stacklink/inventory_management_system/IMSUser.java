@@ -21,9 +21,11 @@ public class IMSUser {
     static IMSDatabase database = new IMSDatabase();
     static DialogWindow dialog = new DialogWindow();
     public AnchorPane addUser(){
-        AnchorPane root = new AnchorPane();
+        AnchorPane root;
+        root = new AnchorPane();
 
-        GridPane grid = new GridPane();
+        GridPane grid;
+        grid = new GridPane();
         grid.setVgap(15);
         grid.setHgap(15);
 
