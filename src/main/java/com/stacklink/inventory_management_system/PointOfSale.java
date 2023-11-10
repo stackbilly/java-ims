@@ -84,7 +84,7 @@ public class PointOfSale {
             quantityF.clear();
             priceF.clear();
             ArrayList<String> saleData = ims.getSaleData(codeF.getText());
-            if (saleData.size() > 0) {
+            if (!saleData.isEmpty()) {
                 nameF.setText(saleData.get(0));
                 quantityF.setText(saleData.get(1));
                 priceF.setText(saleData.get(2));
