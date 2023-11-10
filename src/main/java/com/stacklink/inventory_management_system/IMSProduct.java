@@ -170,32 +170,12 @@ public class IMSProduct {
         TableColumn<Product, String> category = new TableColumn<>("Category");
         category.setCellValueFactory((e) -> e.getValue().categoryProperty());
 
-        TableColumn<Product, String> quantity = new TableColumn<>("Quantity");
-        quantity.setCellValueFactory((e) -> e.getValue().quantityProperty());
-        quantity.setCellFactory(TextFieldTableCell.forTableColumn());
-        Comparator<String> comparator = (v1,v2) -> {
-            Integer i1 = Integer.parseInt(v1);
-            Integer i2 = Integer.parseInt(v2);
-            return i2 - i1;
-        };
-        quantity.setComparator(comparator);
-        quantity.setOnEditCommit(e -> {
-            if(database.updateProduct("Product","quantity", Integer.parseInt(e.getOldValue()),
-                    Integer.parseInt(e.getNewValue())))
-                dialog.showDialog("Success", e.getOldValue()+ " updated to "+e.getNewValue()+" successfully");
-        });
+        TableColumn<Product, String> quantity = getProductStringTableColumn();
 
         TableColumn<Product, String> cost = new TableColumn<>("Cost Price");
         cost.setCellValueFactory((e) -> e.getValue().costPriceProperty());
 
-        TableColumn<Product, String> sale = new TableColumn<>("Sale Price");
-        sale.setCellValueFactory((e) -> e.getValue().salePriceProperty());
-        sale.setCellFactory(TextFieldTableCell.forTableColumn());
-        sale.setOnEditCommit((e) -> {
-            if(database.updateProduct("Product", "sale", Integer.parseInt(e.getOldValue()),
-                    Integer.parseInt(e.getNewValue())))
-                dialog.showDialog("Success", e.getOldValue()+" updated to "+e.getNewValue()+" successfully");
-        });
+        TableColumn<Product, String> sale = getStringTableColumn();
 
         TableColumn<Product, String> dateAdded = new TableColumn<>("Date Added");
         dateAdded.setCellValueFactory((e) -> e.getValue().dateAddedProperty());
@@ -211,5 +191,35 @@ public class IMSProduct {
         productTable.setItems(productObservableList);
 
         return productTable;
+    }
+
+    private TableColumn<Product, String> getStringTableColumn() {
+        TableColumn<Product, String> sale = new TableColumn<>("Sale Price");
+        sale.setCellValueFactory((e) -> e.getValue().salePriceProperty());
+        sale.setCellFactory(TextFieldTableCell.forTableColumn());
+        sale.setOnEditCommit((e) -> {
+            if(database.updateProduct("Product", "sale", Integer.parseInt(e.getOldValue()),
+                    Integer.parseInt(e.getNewValue())))
+                dialog.showDialog("Success", e.getOldValue()+" updated to "+e.getNewValue()+" successfully");
+        });
+        return sale;
+    }
+
+    private TableColumn<Product, String> getProductStringTableColumn() {
+        TableColumn<Product, String> quantity = new TableColumn<>("Quantity");
+        quantity.setCellValueFactory((e) -> e.getValue().quantityProperty());
+        quantity.setCellFactory(TextFieldTableCell.forTableColumn());
+        Comparator<String> comparator = (v1,v2) -> {
+            Integer i1 = Integer.parseInt(v1);
+            Integer i2 = Integer.parseInt(v2);
+            return i2 - i1;
+        };
+        quantity.setComparator(comparator);
+        quantity.setOnEditCommit(e -> {
+            if(database.updateProduct("Product","quantity", Integer.parseInt(e.getOldValue()),
+                    Integer.parseInt(e.getNewValue())))
+                dialog.showDialog("Success", e.getOldValue()+ " updated to "+e.getNewValue()+" successfully");
+        });
+        return quantity;
     }
 }
