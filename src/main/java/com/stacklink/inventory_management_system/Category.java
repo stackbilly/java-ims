@@ -4,9 +4,9 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Category {
-    private SimpleStringProperty categoryName;
-    private SimpleStringProperty type;
-    private SimpleStringProperty index;
+    private final SimpleStringProperty categoryName;
+    private final SimpleStringProperty type;
+    private final SimpleStringProperty index;
 
     public Category(String index, String categoryName, String type){
         this.categoryName = new SimpleStringProperty(categoryName);
@@ -25,11 +25,4 @@ public class Category {
         return categoryName.get();
     }
 
-    public String getIndex() {
-        return index.get();
-    }
-
-    public String getType() {
-        return type.get();
-    }
 }
