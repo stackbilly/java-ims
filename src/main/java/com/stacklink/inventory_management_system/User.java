@@ -3,10 +3,10 @@ package com.stacklink.inventory_management_system;
 import javafx.beans.property.SimpleStringProperty;
 
 public class User {
-    private SimpleStringProperty index;
-    private SimpleStringProperty name;
-    private SimpleStringProperty phoneNo;
-    private SimpleStringProperty password;
+    private final SimpleStringProperty index;
+    private final SimpleStringProperty name;
+    private final SimpleStringProperty phoneNo;
+    private final SimpleStringProperty password;
 
     public User(String mIndex, String mName, String mPhone, String mPassword){
         this.index = new SimpleStringProperty(mIndex);
@@ -31,19 +31,8 @@ public class User {
         return password;
     }
 
-    public String getIndex() {
-        return index.get();
-    }
-
     public String getName() {
         return name.get();
     }
 
-    public String getPhoneNo() {
-        return phoneNo.get();
-    }
-
-    public String getPassword() {
-        return password.get();
-    }
 }
