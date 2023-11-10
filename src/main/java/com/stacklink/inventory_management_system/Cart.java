@@ -4,14 +4,14 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class Cart {
 
-    private SimpleStringProperty saleID;
-    private SimpleStringProperty code;
-    private SimpleStringProperty name;
-    private SimpleStringProperty quantity;
-    private SimpleStringProperty price;
+    private final SimpleStringProperty saleID;
+    private final SimpleStringProperty code;
+    private final SimpleStringProperty name;
+    private final SimpleStringProperty quantity;
+    private final SimpleStringProperty price;
 
-    private SimpleStringProperty date;
-    private SimpleStringProperty total;
+    private final SimpleStringProperty date;
+    private final SimpleStringProperty total;
 
     public Cart(String pSaleID, String pCode, String pName, String pQuantity, String pPrice, String total, String date){
         this.saleID = new SimpleStringProperty(pSaleID);
@@ -21,14 +21,6 @@ public class Cart {
         this.price = new SimpleStringProperty(pPrice);
         this.total = new SimpleStringProperty(total);
         this.date = new SimpleStringProperty(date);
-    }
-
-    public SimpleStringProperty dateProperty() {
-        return date;
-    }
-
-    public SimpleStringProperty totalProperty() {
-        return total;
     }
 
     public SimpleStringProperty saleIDProperty() {
