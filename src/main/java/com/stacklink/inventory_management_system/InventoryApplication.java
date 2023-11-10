@@ -286,12 +286,7 @@ public class InventoryApplication extends Application {
         db_icon.setFitHeight(20);
         db_icon.setFitWidth(20);
         Label dashboard = new Label("Dashboard", db_icon);
-        dashboard.setPadding(new Insets(10.0,10.0,10.0,10.0));
-        dashboard.setContentDisplay(ContentDisplay.LEFT);
-        dashboard.setPrefWidth(280);
-        dashboard.setPrefHeight(60);
-        dashboard.setFont(Font.font("Verdana", FontWeight.MEDIUM, 17));
-        dashboard.setTextFill(Color.WHITE);
+        dash_board(dashboard);
         dashboard.setOnMouseClicked(e -> pane.setCenter(dB.arrangeDashboard(dashboardStage)));
         dashboard.setOnMouseExited(e -> dashboard.setBackground(null));
         dashboard.setOnMouseEntered(e -> dashboard.setBackground(new Background(new BackgroundFill(Color.grayRgb(40), CornerRadii.EMPTY, Insets.EMPTY))));
@@ -314,12 +309,7 @@ public class InventoryApplication extends Application {
         category_icon.setFitHeight(20);
         category_icon.setFitWidth(20);
         Label category = new Label("Category", category_icon);
-        category.setPadding(new Insets(10.0,10.0,10.0,10.0));
-        category.setContentDisplay(ContentDisplay.LEFT);
-        category.setPrefWidth(280);
-        category.setPrefHeight(60);
-        category.setFont(Font.font("Verdana", FontWeight.MEDIUM, 17));
-        category.setTextFill(Color.WHITE);
+        dash_board(category);
         category.setOnMouseClicked(e -> pane.setCenter(mCategory.categoryRoot()));
         category.setOnMouseExited(e -> category.setBackground(null));
         category.setOnMouseEntered(e -> category.setBackground(new Background(new BackgroundFill(Color.grayRgb(40), CornerRadii.EMPTY, Insets.EMPTY))));
@@ -342,12 +332,7 @@ public class InventoryApplication extends Application {
         pos_icon.setFitHeight(20);
         pos_icon.setFitWidth(20);
         Label lPos = new Label("POS", pos_icon);
-        lPos.setPadding(new Insets(10.0,10.0,10.0,10.0));
-        lPos.setContentDisplay(ContentDisplay.LEFT);
-        lPos.setPrefWidth(280);
-        lPos.setPrefHeight(60);
-        lPos.setFont(Font.font("Verdana", FontWeight.MEDIUM, 17));
-        lPos.setTextFill(Color.WHITE);
+        dash_board(lPos);
         lPos.setOnMouseClicked(e -> pane.setCenter(pos.pointOfSale()));
         lPos.setOnMouseExited(e -> lPos.setBackground(null));
         lPos.setOnMouseEntered(e -> lPos.setBackground(new Background(new BackgroundFill(Color.grayRgb(40), CornerRadii.EMPTY, Insets.EMPTY))));
@@ -356,12 +341,7 @@ public class InventoryApplication extends Application {
         sales_icon.setFitHeight(20);
         sales_icon.setFitWidth(20);
         Label sales = new Label("Sales", sales_icon);
-        sales.setPadding(new Insets(10.0,10.0,10.0,10.0));
-        sales.setContentDisplay(ContentDisplay.LEFT);
-        sales.setPrefWidth(280);
-        sales.setPrefHeight(60);
-        sales.setFont(Font.font("Verdana", FontWeight.MEDIUM, 17));
-        sales.setTextFill(Color.WHITE);
+        dash_board(sales);
         sales.setOnMouseClicked(e -> pane.setCenter(dB.salesRoot(dashboardStage)));
         sales.setOnMouseExited(e -> sales.setBackground(null));
         sales.setOnMouseEntered(e -> sales.setBackground(new Background(new BackgroundFill(Color.grayRgb(40), CornerRadii.EMPTY, Insets.EMPTY))));
@@ -371,12 +351,7 @@ public class InventoryApplication extends Application {
         report_icon.setFitHeight(20);
         report_icon.setFitWidth(20);
         Label report = new Label("Reports", report_icon);
-        report.setPadding(new Insets(10.0,10.0,10.0,10.0));
-        report.setContentDisplay(ContentDisplay.LEFT);
-        report.setPrefWidth(280);
-        report.setPrefHeight(60);
-        report.setFont(Font.font("Verdana", FontWeight.MEDIUM, 17));
-        report.setTextFill(Color.WHITE);
+        dash_board(report);
         report.setOnMouseExited(e -> report.setBackground(null));
         report.setOnMouseClicked((e) -> pane.setCenter(reports.IMSReportsPage()));
         report.setOnMouseEntered(e -> report.setBackground(new Background(new BackgroundFill(Color.grayRgb(40), CornerRadii.EMPTY, Insets.EMPTY))));
@@ -385,12 +360,7 @@ public class InventoryApplication extends Application {
         user_icon.setFitHeight(20);
         user_icon.setFitWidth(20);
         Label user = new Label("Users", user_icon);
-        user.setPadding(new Insets(10.0,10.0,10.0,10.0));
-        user.setContentDisplay(ContentDisplay.LEFT);
-        user.setPrefWidth(280);
-        user.setPrefHeight(60);
-        user.setFont(Font.font("Verdana", FontWeight.MEDIUM, 17));
-        user.setTextFill(Color.WHITE);
+        dash_board(user);
         user.setOnMouseExited(e -> user.setBackground(null));
         user.setOnMouseClicked((e) -> pane.setCenter(_user.userInterface()));
         user.setOnMouseEntered(e -> user.setBackground(new Background(new BackgroundFill(Color.grayRgb(40), CornerRadii.EMPTY, Insets.EMPTY))));
@@ -414,5 +384,14 @@ public class InventoryApplication extends Application {
         dashboardStage.setScene(scene);
         dashboardStage.setTitle("IMS Dashboard");
         dashboardStage.show();
+    }
+
+    private static void dash_board(Label dashboard) {
+        dashboard.setPadding(new Insets(10.0,10.0,10.0,10.0));
+        dashboard.setContentDisplay(ContentDisplay.LEFT);
+        dashboard.setPrefWidth(280);
+        dashboard.setPrefHeight(60);
+        dashboard.setFont(Font.font("Verdana", FontWeight.MEDIUM, 17));
+        dashboard.setTextFill(Color.WHITE);
     }
 }
