@@ -4,11 +4,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Expenses {
-    private SimpleStringProperty expenseID;
-    private SimpleStringProperty expenseName;
-    private SimpleStringProperty cost;
-    private SimpleStringProperty date;
-    private SimpleStringProperty index;
+    private final SimpleStringProperty expenseID;
+    private final SimpleStringProperty expenseName;
+    private final SimpleStringProperty cost;
+    private final SimpleStringProperty date;
+    private final SimpleStringProperty index;
 
     public Expenses(String index, String expenseID, String date, String expenseName, String cost){
         this.index = new SimpleStringProperty(index);
