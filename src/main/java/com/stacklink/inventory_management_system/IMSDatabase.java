@@ -1,7 +1,11 @@
 package com.stacklink.inventory_management_system;
 
 import com.mongodb.MongoWriteException;
-import com.mongodb.client.*;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Updates;
@@ -29,7 +33,7 @@ public class IMSDatabase {
 
     public void createUniqueIndex(String fieldName, String collectionName) {
         Document index = new Document(fieldName, 1);
-        com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+        MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
         MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
         MongoCollection<Document> collection = database.getCollection(collectionName);
         collection.createIndex(index, new IndexOptions().unique(true));
@@ -37,7 +41,7 @@ public class IMSDatabase {
 
     public boolean addCategory(String categoryName, String type) {
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("Connection Status: [OK], Database name: " + database.getName());
 
@@ -67,7 +71,7 @@ public class IMSDatabase {
         ObservableList<Category> categories = FXCollections.observableArrayList();
 
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("Connection Status: [OK], Database name: " + database.getName());
 
@@ -89,7 +93,7 @@ public class IMSDatabase {
         ArrayList<String> categories = new ArrayList<>();
         String collectionName = "Category";
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("Connection Status: [OK], Database name: " + database.getName());
 
@@ -108,7 +112,7 @@ public class IMSDatabase {
     public boolean addProduct(Product product) {
         boolean isInserted = false;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
 
             System.out.println("Database connection: [OK] " + database.getName() + "\nADDR: PRODUCT");
@@ -143,48 +147,46 @@ public class IMSDatabase {
         String collectionName = "Product";
         ObservableList<Product> products = FXCollections.observableArrayList();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("Database connection: [GOOD STATE], /route -> " + collectionName);
 
             MongoCollection<Document> collection = database.getCollection(collectionName);
             FindIterable<Document> documents = collection.find();
             int i = 1;
-            for (Document doc : documents) {
-                products.add(new Product(String.valueOf(i), (String) doc.get("name"), (String) doc.get("description"), (String) doc.get("code"),
-                        (String) doc.get("category"), (Integer) doc.get("quantity"), (Integer) doc.get("cost"),
-                        (Integer) doc.get("sale"), String.valueOf(doc.get("date")), (Integer)
-                        doc.get("total"), (Integer) doc.get("expectedSales")));
-                i++;
-            }
+            getProduct(products, documents, i);
         } catch (Exception e) {
             dialog.showDialog("Exception", "Exception while extracting data from database!");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return products;
+    }
+
+    private void getProduct(ObservableList<Product> products, FindIterable<Document> documents, int i) {
+        for (Document doc : documents) {
+            products.add(new Product(String.valueOf(i), (String) doc.get("name"), (String) doc.get("description"), (String) doc.get("code"),
+                    (String) doc.get("category"), (Integer) doc.get("quantity"), (Integer) doc.get("cost"),
+                    (Integer) doc.get("sale"), String.valueOf(doc.get("date")), (Integer)
+                    doc.get("total"), (Integer) doc.get("expectedSales")));
+            i++;
+        }
     }
 
     public ObservableList<Product> getProducts(String code) {
         String collectionName = "Product";
         ObservableList<Product> products = FXCollections.observableArrayList();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("Database connection: [GOOD STATE], /route -> " + collectionName);
 
             MongoCollection<Document> collection = database.getCollection(collectionName);
             FindIterable<Document> documents = collection.find(Filters.eq("code", code));
             int i = 1;
-            for (Document doc : documents) {
-                products.add(new Product(String.valueOf(i), (String) doc.get("name"), (String) doc.get("description"), (String) doc.get("code"),
-                        (String) doc.get("category"), (Integer) doc.get("quantity"), (Integer) doc.get("cost"),
-                        (Integer) doc.get("sale"), String.valueOf(doc.get("date")), (Integer)
-                        doc.get("total"), (Integer) doc.get("expectedSales")));
-                i++;
-            }
+            getProduct(products, documents, i);
         } catch (Exception e) {
             dialog.showDialog("Exception", "Exception while extracting data from database!");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return products;
     }
@@ -192,7 +194,7 @@ public class IMSDatabase {
     public boolean updateProduct(String collectionName, String fieldName, String oldValue, String newValue) {
         boolean isUpdate = false;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
 
             MongoCollection<Document> collection = database.getCollection(collectionName);
@@ -201,7 +203,7 @@ public class IMSDatabase {
             System.out.println(fieldName + " update state: ->/ [GOOD]");
         } catch (MongoWriteException e) {
             System.out.println(fieldName + " update state: ->/ [BAD]");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return isUpdate;
     }
@@ -209,8 +211,10 @@ public class IMSDatabase {
     public boolean updateProduct(String collectionName, String fieldName, int oldValue, int newValue) {
         boolean isUpdate = false;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
-            MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
+            MongoDatabase database;
+            try (MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017")) {
+                database = mongodbClient.getDatabase(DB_NAME);
+            }
 
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.updateOne(Filters.eq(fieldName, oldValue), Updates.set(fieldName, newValue));
@@ -218,7 +222,7 @@ public class IMSDatabase {
             System.out.println(fieldName + " update state: ->/ [GOOD]");
         } catch (MongoWriteException e) {
             System.out.println(fieldName + " update state: ->/ [BAD]");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return isUpdate;
     }
@@ -226,7 +230,7 @@ public class IMSDatabase {
     public boolean updateProduct(String productName, int quantity) {
         boolean onUpdate;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
 
             MongoCollection<Document> collection = database.getCollection("Product");
@@ -240,7 +244,7 @@ public class IMSDatabase {
         } catch (MongoWriteException e) {
             System.out.println(productName + " update state: ->/ [BAD]");
             onUpdate = false;
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return onUpdate;
     }
@@ -248,7 +252,7 @@ public class IMSDatabase {
     public ArrayList<String> getSaleData(String code) {
         ArrayList<String> saleData = new ArrayList<>();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
 
             MongoCollection<Document> collection = database.getCollection("Product");
@@ -260,7 +264,7 @@ public class IMSDatabase {
                 saleData.add(String.valueOf(doc.get("cost")));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return saleData;
     }
@@ -268,7 +272,7 @@ public class IMSDatabase {
     public boolean addSaleData(Cart cart, String getCost) {
         boolean isInserted = false;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
 
             MongoCollection<Document> collection = database.getCollection("Sales");
@@ -288,10 +292,10 @@ public class IMSDatabase {
                 isInserted = true;
             } catch (MongoWriteException e) {
                 addSaleData(cart, getCost);
-                e.printStackTrace();
+                System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return isInserted;
     }
@@ -299,7 +303,7 @@ public class IMSDatabase {
     public ObservableList<Cart> getSaleData() {
         ObservableList<Cart> saleData = FXCollections.observableArrayList();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
 
             MongoCollection<Document> collection = database.getCollection("Sales");
@@ -310,26 +314,26 @@ public class IMSDatabase {
                         String.valueOf(doc.get("quantity")), String.valueOf(doc.get("price")), String.valueOf(doc.get("total")),
                         String.valueOf(doc.get("date"))));
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return saleData;
     }
 
     public void deleteCartItem(int saleID) {
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
 
             MongoCollection<Document> collection = database.getCollection("Sales");
             collection.deleteOne(Filters.eq("saleID", saleID));
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
     }
 
     public void addPaySlip(PaySlip paySlip) {
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
 
             createUniqueIndex("slipID", "Slips");
@@ -344,14 +348,14 @@ public class IMSDatabase {
                 dialog.showDialog("Exception", "Slip with that ID already exists");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
     }
 
     public int getProductQuantity(String productName) {
         int quantity = 0;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("Database CONN -> [SUCCESS] -route -> Product");
 
@@ -362,7 +366,7 @@ public class IMSDatabase {
 
         } catch (Exception e) {
             dialog.showDialog("Exception", "Error completing transaction");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return quantity;
     }
@@ -370,7 +374,7 @@ public class IMSDatabase {
     public void updateProductOnSale(String code, int quantity) {
         int newQuantity;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("Database CONN -> [SUCCESS] -route -> Product");
 
@@ -383,13 +387,15 @@ public class IMSDatabase {
             collection.updateOne(Filters.eq("code", code), Updates.set("quantity", newQuantity));
         } catch (Exception e) {
             dialog.showDialog("Exception", "Error completing transaction");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
     }
 
+
+
     public void updateSellState() {
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("Database CONN -> [SUCCESS] -route -> Sales");
 
@@ -400,21 +406,21 @@ public class IMSDatabase {
 
         } catch (Exception e) {
             dialog.showDialog("Exception", "Error completing transaction");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
     }
 
     public int getCollectionCount(String collectionName) {
         int noOfProducts = 0;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("Database CONN -> [SUCCESS] -route -> Products");
             MongoCollection<Document> collection = database.getCollection(collectionName);
             noOfProducts = (int) collection.countDocuments();
         } catch (Exception e) {
             dialog.showDialog("Exception", "Error reading the database");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return noOfProducts;
     }
@@ -422,7 +428,7 @@ public class IMSDatabase {
     public int getTotalSales(String date) {
         int total = 0;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
 
             MongoCollection<Document> collection = database.getCollection("Sales");
@@ -440,7 +446,7 @@ public class IMSDatabase {
             }
         } catch (Exception e) {
             dialog.showDialog("Exception", "Exception occurred while reading data");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return total;
     }
@@ -448,29 +454,34 @@ public class IMSDatabase {
     public ObservableList<Sales> getAllSales() {
         ObservableList<Sales> listOfSales = FXCollections.observableArrayList();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Sales");
             FindIterable<Document> documents = collection.find(Filters.eq("status", "Sold"));
-            int i = 1;
-            for (Document doc : documents) {
-                listOfSales.add(new Sales(
-                        String.valueOf(i),
-                        (String) doc.get("Date"),
-                        String.valueOf(doc.get("saleID")),
-                        (String) doc.get("code"),
-                        (String) doc.get("name"),
-                        String.valueOf(doc.get("quantity")),
-                        String.valueOf(doc.get("price")),
-                        String.valueOf(doc.get("profit"))
-                ));
-                ++i;
-            }
+            int i;
+            i = 1;
+            populateSales(listOfSales, documents, i);
         } catch (Exception e) {
             dialog.showDialog("Exception", "Exception while retrieving sales");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return listOfSales;
+    }
+
+    private void populateSales(ObservableList<Sales> listOfSales, FindIterable<Document> documents, int i) {
+        for (Document doc : documents) {
+            listOfSales.add(new Sales(
+                    String.valueOf(i),
+                    (String) doc.get("Date"),
+                    String.valueOf(doc.get("saleID")),
+                    (String) doc.get("code"),
+                    (String) doc.get("name"),
+                    String.valueOf(doc.get("quantity")),
+                    String.valueOf(doc.get("price")),
+                    String.valueOf(doc.get("profit"))
+            ));
+            ++i;
+        }
     }
 
     public String formatDate(String date) {
@@ -483,29 +494,17 @@ public class IMSDatabase {
     public ObservableList<Sales> getSalesByDate(String date) {
         ObservableList<Sales> listOfSales = FXCollections.observableArrayList();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Sales");
             Bson statusFilter = Filters.eq("status", "Sold");
             Bson dateFilter = Filters.eq("Date", formatDate(date));
             FindIterable<Document> documents = collection.find(Filters.and(statusFilter, dateFilter));
             int i = 1;
-            for (Document doc : documents) {
-                listOfSales.add(new Sales(
-                        String.valueOf(i),
-                        (String) doc.get("Date"),
-                        String.valueOf(doc.get("saleID")),
-                        (String) doc.get("code"),
-                        (String) doc.get("name"),
-                        String.valueOf(doc.get("quantity")),
-                        String.valueOf(doc.get("price")),
-                        String.valueOf(doc.get("profit"))
-                ));
-                ++i;
-            }
+            populateSales(listOfSales, documents, i);
         } catch (Exception e) {
             dialog.showDialog("Exception", "Exception while retrieving sales");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return listOfSales;
     }
@@ -513,7 +512,7 @@ public class IMSDatabase {
     public ObservableList<Sales> getSalesBySaleID(String saleID) {
         ObservableList<Sales> listOfSales = FXCollections.observableArrayList();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Sales");
             Bson statusFilter = Filters.eq("status", "Sold");
@@ -521,26 +520,14 @@ public class IMSDatabase {
             FindIterable<Document> documents = collection.find(Filters.and(statusFilter, saleIDFilter));
             if (saleID.length() > 1) {
                 int i = 1;
-                for (Document doc : documents) {
-                    listOfSales.add(new Sales(
-                            String.valueOf(i),
-                            (String) doc.get("Date"),
-                            String.valueOf(doc.get("saleID")),
-                            (String) doc.get("code"),
-                            (String) doc.get("name"),
-                            String.valueOf(doc.get("quantity")),
-                            String.valueOf(doc.get("price")),
-                            String.valueOf(doc.get("profit"))
-                    ));
-                    ++i;
-                }
+                populateSales(listOfSales, documents, i);
             }
-            if (saleID.length() < 1) {
+            if (saleID.isEmpty()) {
                 listOfSales = getAllSales();
             }
         } catch (Exception e) {
             dialog.showDialog("Exception", "Exception while retrieving sales");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return listOfSales;
     }
@@ -548,7 +535,7 @@ public class IMSDatabase {
     public boolean addExpense(Expenses expenses){
         boolean isAdded;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Expenses");
             Document document = new Document("Date", formatDate(expenses.getDate())).append("cost", Integer.parseInt(expenses.getCost()))
@@ -566,7 +553,7 @@ public class IMSDatabase {
     public ObservableList<Expenses> getAllExpenses(){
         ObservableList<Expenses> expensesList = FXCollections.observableArrayList();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("DATABASE CONN -> SUCCESS -> EXPENSES");
             MongoCollection<Document> collection = database.getCollection("Expenses");
@@ -591,12 +578,13 @@ public class IMSDatabase {
     public ObservableList<Expenses> getExpensesByDate(String date){
         ObservableList<Expenses> expensesList = FXCollections.observableArrayList();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("DATABASE CONN -> SUCCESS -> EXPENSES");
             MongoCollection<Document> collection = database.getCollection("Expenses");
             FindIterable<Document> documents = collection.find(Filters.eq("Date", formatDate(date)));
-            int i = 1;
+            int i;
+            i = 1;
             for (Document doc : documents){
                 expensesList.add(new Expenses(
                         String.valueOf(i),
@@ -616,7 +604,7 @@ public class IMSDatabase {
     public boolean deleteExpense(String expenseID){
         boolean isDeleted;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Expenses");
             collection.deleteOne(Filters.eq("expenseID", Integer.parseInt(expenseID)));
@@ -631,7 +619,7 @@ public class IMSDatabase {
     public int getRevenueOfTask(String collectionName, String fieldName, String date){
         int total = 0;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("DATABASE CONN -> SUCCESS route -> Expenses");
             MongoCollection<Document> collection = database.getCollection(collectionName);
@@ -646,7 +634,7 @@ public class IMSDatabase {
                     total += Integer.parseInt(String.valueOf(doc.get(fieldName)));
             }
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return total;
     }
@@ -661,7 +649,7 @@ public class IMSDatabase {
     public int getTotalCostOfProducts(){
         int total = 0;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("DATABASE CONN -> SUCCESS route -> Product");
             MongoCollection<Document> collection = database.getCollection("Product");
@@ -671,7 +659,7 @@ public class IMSDatabase {
                         Integer.parseInt(String.valueOf(doc.get("quantity")));
             System.out.println(total);
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return total;
     }
@@ -689,7 +677,7 @@ public class IMSDatabase {
     public ArrayList<Integer> getInventoryDailyData(String date){
         ArrayList<Integer> inventoryDailyData = new ArrayList<>();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Sales");
             FindIterable<Document> documents = collection.find(Filters.eq("Date", formatDate(date)));
@@ -706,7 +694,7 @@ public class IMSDatabase {
             inventoryDailyData.add(amountReceived);
             inventoryDailyData.add(profit);
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return inventoryDailyData;
     }
@@ -714,7 +702,7 @@ public class IMSDatabase {
     public ObservableList<User> getUsers(){
         ObservableList<User> users = FXCollections.observableArrayList();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Users");
             FindIterable<Document> documents = collection.find();
@@ -725,14 +713,14 @@ public class IMSDatabase {
             }
         }catch (Exception e){
             dialog.showDialog("Exception", "Exception while retrieving users from database");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return users;
     }
     public ArrayList<String> getUser(String username){
         ArrayList<String> userList = new ArrayList<>();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Users");
             FindIterable<Document> documents = collection.find(Filters.eq("username", username));
@@ -743,7 +731,7 @@ public class IMSDatabase {
             }
         }catch (Exception e){
             dialog.showDialog("Error", "Error retrieving user data");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return userList;
     }
@@ -762,7 +750,7 @@ public class IMSDatabase {
 
     public void addUser(String username, String password, String phoneNo){
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             System.out.println("DATABASE CONN -> [SUCCESS] -> Users");
             MongoCollection<Document> collection = database.getCollection("Users");
@@ -797,7 +785,7 @@ public class IMSDatabase {
         ArrayList<String> user = new ArrayList<>();
         boolean isChanged;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Users");
             System.out.println("DATABASE CONN -> [SUCCESS] -> ROUTE -> USERS");
@@ -805,7 +793,7 @@ public class IMSDatabase {
             for (Document doc : documents)
                 user.add((String) doc.get("username"));
             salt = getSalt();
-            if (user.size() >= 1){
+            if (!user.isEmpty()){
                 collection.updateOne(Filters.eq("username", username), Updates.set("salt", salt));
                 collection.updateOne(Filters.eq("username", username),
                         Updates.set("password", generateStrongPassword(newPassword, salt)));
@@ -824,7 +812,7 @@ public class IMSDatabase {
     , String phoneNo, String password){
         boolean isWrite = false;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Business");
             createUniqueIndex("name", "Business");
@@ -840,7 +828,7 @@ public class IMSDatabase {
             }
         }catch (Exception e){
             dialog.showDialog("Exception", "Exception while writing "+businessName+" to database");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return isWrite;
     }
@@ -848,14 +836,14 @@ public class IMSDatabase {
     public boolean deleteTask(String fieldName, String key, String collectionName){
         boolean isDeleted;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection(collectionName);
             collection.deleteOne(Filters.eq(fieldName, key));
             isDeleted = true;
         }catch (Exception e){
             isDeleted = false;
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return isDeleted;
     }
@@ -863,7 +851,7 @@ public class IMSDatabase {
     public ArrayList<String> getBusinessInfo(){
         ArrayList<String> businessInfo = new ArrayList<>();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Business");
             FindIterable<Document> documents = collection.find();
@@ -875,7 +863,7 @@ public class IMSDatabase {
             }
         }catch (Exception e){
             dialog.showDialog("Exception", "Error retrieving business information");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return businessInfo;
     }
@@ -883,7 +871,7 @@ public class IMSDatabase {
     public boolean updateBusinessInfo(String name, String tagline, String address, String tel){
         boolean isInsert;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Business");
             collection.deleteOne(Filters.eq("name", getBusinessInfo().get(0)));
@@ -901,7 +889,7 @@ public class IMSDatabase {
     public ArrayList<String> getSale(int saleID){
         ArrayList<String> saleInfo = new ArrayList<>();
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Sales");
             FindIterable<Document> documents = collection.find(Filters.eq("saleID", saleID));
@@ -916,7 +904,7 @@ public class IMSDatabase {
             }
         }catch (Exception e){
             dialog.showDialog("Exception", "Exception occurred while retrieving sale no "+saleID+" details");
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
         }
         return saleInfo;
     }
@@ -924,14 +912,14 @@ public class IMSDatabase {
     public boolean updateSale(int saleID, int cost){
         boolean onUpdate;
         try {
-            com.mongodb.client.MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
+            MongoClient mongodbClient = MongoClients.create("mongodb://localhost:27017");
             MongoDatabase database = mongodbClient.getDatabase(DB_NAME);
             MongoCollection<Document> collection = database.getCollection("Sales");
             collection.updateOne(Filters.eq("saleID", saleID), Updates.set("profit", -1 * cost));
             onUpdate = true;
         }catch (Exception e){
             dialog.showDialog("Exception", "Exception while updating sale no "+saleID);
-            e.printStackTrace();
+            System.out.printf("%s %s%n", e.getClass().getName(), e.getMessage());
             onUpdate = false;
         }
         return onUpdate;
