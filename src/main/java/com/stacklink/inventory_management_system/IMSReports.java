@@ -68,8 +68,7 @@ public class IMSReports {
             );
             sale.openPDF(path);
 
-            dialog.showDialog("Daily Business Report", "" +
-                    "Report Generated, go to "+path);
+            dialog.showDialog("Daily Business Report", String.format("Report Generated, go to %s", path));
             primaryStage.close();
         });
 
