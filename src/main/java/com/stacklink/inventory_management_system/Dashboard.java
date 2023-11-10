@@ -180,7 +180,7 @@ public class Dashboard {
             lSales.setText(String.valueOf(database.getTotalSales(String.valueOf(filterDatePicker.getValue()))));
             lExpenses.setText(String.valueOf(database.getRevenueOfTask("Expenses", "cost",
                     String.valueOf(filterDatePicker.getValue()))));
-            salesProgress.setProgress(database.getTotalSales(String.valueOf(filterDatePicker.getValue())) / database.getTotalCostOfProducts());
+            salesProgress.setProgress((double) database.getTotalSales(String.valueOf(filterDatePicker.getValue())) / database.getTotalCostOfProducts());
             profitProgress.setProgress(database.getProfitProgress(String.valueOf(filterDatePicker.getValue())));
 
             ObservableList<PieChart.Data> imsFValueList = FXCollections.observableArrayList(
@@ -352,16 +352,7 @@ public class Dashboard {
         hRight.setAlignment(Pos.CENTER_LEFT);
         hRight.setPadding(new Insets(25.0,25.0,25.0,25.0));
 
-        DatePicker datePicker = new DatePicker();
-        datePicker.setPrefHeight(41);
-        datePicker.setPrefWidth(180);
-        datePicker.setEditable(true);
-        datePicker.setPromptText("Filter By Date");
-        datePicker.setOnAction((e) -> {
-            table.getChildren().clear();
-            table.getChildren().addAll(expenses.addExpense(),expenses.viewExpenses(stage, database.getExpensesByDate(String.valueOf(datePicker.getValue()))));
-        });
-        HBox hCenter = new HBox(datePicker);
+        HBox hCenter = gethBox(stage, table);
         AnchorPane.setRightAnchor(hCenter,20.0);
         AnchorPane.setTopAnchor(hCenter, 6.0);
         hCenter.setPadding(new Insets(25.0,25.0,25.0,25.0));
@@ -378,5 +369,18 @@ public class Dashboard {
 
         root.getChildren().addAll(vRoot);
         return root;
+    }
+
+    private HBox gethBox(Stage stage, HBox table) {
+        DatePicker datePicker = new DatePicker();
+        datePicker.setPrefHeight(41);
+        datePicker.setPrefWidth(180);
+        datePicker.setEditable(true);
+        datePicker.setPromptText("Filter By Date");
+        datePicker.setOnAction((e) -> {
+            table.getChildren().clear();
+            table.getChildren().addAll(expenses.addExpense(),expenses.viewExpenses(stage, database.getExpensesByDate(String.valueOf(datePicker.getValue()))));
+        });
+        return new HBox(datePicker);
     }
 }
